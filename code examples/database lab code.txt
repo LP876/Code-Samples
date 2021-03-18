@@ -1,0 +1,364 @@
+COSC 304 Lab 2 (2020) Solution
+
+-- Question 1
+SELECT g.course_ID, c.cou_name, COUNT(*) Total_Students, MAX(grade)
+FROM grades g, courses c
+WHERE g.course_ID = c.course_ID 
+GROUP BY g.course_ID, c.cou_name
+ORDER BY g.course_ID;
+
+COSC111	Computer Programming I                        17	92
+COSC118	Computer Networks                              8	90
+COSC121	Computer Programming II                       16	89
+COSC126	Systems Analysis and Design                    8	94
+COSC211	Assembler Language Programming                 9	88
+COSC222	Computer Data Structures                       4	74
+COSC224	Projects in Computer Science                   6	93
+COSC229	Computer Graphics                              8	92
+COSC304	Introduction to Database Management Systems    2	90
+COSC470	Software Engineering                           2	78
+MATH111	Finite Mathematics                            14	94
+MATH222	Calculus IV                                    4	78
+MATH226	Analysis                                       8	88
+
+-----------------------------------------------------------------------
+-- Question 2
+SELECT g.course_ID, c.cou_name, COUNT(*) Total_Students, MAX(grade)
+FROM grades g, courses c
+WHERE g.course_ID = c.course_ID AND
+      (g.course_ID = 'COSC111' OR g.course_ID = 'COSC121' OR g.course_ID = 'COSC222')
+GROUP BY g.course_ID, c.cou_name
+ORDER BY g.course_ID;
+
+COSC111	Computer Programming I     17   92
+COSC121	Computer Programming II    16   89
+COSC222	Computer Data Structures    4   74
+
+
+-----------------------------------------------------------------------
+-- Question 3
+SELECT g.course_ID, c.cou_name, MAX(grade) BestGrade
+FROM grades g, courses c
+WHERE g.course_ID = c.course_ID AND
+      g.course_ID <> 'COSC111' AND 
+      g.course_ID <> 'COSC118' AND 
+      g.course_ID <> 'COSC121'
+GROUP BY g.course_ID, c.cou_name
+ORDER BY g.course_ID; 
+
+COSC126	Systems Analysis and Design                     94
+COSC211	Assembler Language Programming                  88
+COSC222	Computer Data Structures                        74
+COSC224	Projects in Computer Science                    93
+COSC229	Computer Graphics                               92
+COSC304	Introduction to Database Management Systems     90
+COSC470	Software Engineering                            78
+MATH111	Finite Mathematics                              94
+MATH222	Calculus IV                                     78
+MATH226	Analysis                                        88
+
+
+-----------------------------------------------------------------------
+-- Question 4
+SELECT g.course_ID, c.cou_name, AVG(grade) AVG_Grade
+FROM grades g, courses c
+WHERE g.course_ID = c.course_ID
+GROUP BY g.course_ID, c.cou_name
+HAVING MAX(g.grade) >= 90 AND COUNT(g.student_ID) > 5
+ORDER BY g.course_ID;
+
+COSC111	Computer Programming I          76.2352941
+COSC118	Computer Networks               81.125
+COSC126	Systems Analysis and Design     72.75
+COSC224	Projects in Computer Science    82.8333333
+COSC229	Computer Graphics               76
+MATH111	Finite Mathematics              74.4285714
+
+-----------------------------------------------------------------------
+-- Question 5
+SELECT s.student_ID, s.stu_name, s.program
+FROM students s, grades g, courses c
+WHERE s.student_ID = g.student_ID AND 
+      g.course_ID = c.course_ID AND
+      ((c.cou_name = 'Computer Networks' AND s.program = 'BSC') OR
+       (c.cou_name = 'Computer Programming II' AND s.program = 'ARTS'))
+ORDER BY s.student_ID;
+
+010-020-030	Ron Low         BSC 
+110-001-002	Barry Clark	BSC 
+170-555-555	Dave Semenko	ARTS
+310-001-002	Ann Gibson	ARTS
+310-020-030	Tracy Austin	ARTS
+360-963-963	Jack Nickolson	ARTS
+
+
+-----------------------------------------------------------------------
+-- Question 6
+SELECT DISTINCT s.student_ID, s.stu_name, s.program
+FROM students s, grades g1, grades g2, grades g4
+WHERE s.student_ID = g1.student_ID AND 
+      s.student_ID = g2.student_ID AND 
+      s.student_ID = g4.student_ID AND 
+      g1.grade >= 70 AND
+      g1.course_ID = 'COSC111' AND
+      g2.course_ID = 'COSC121' AND 
+      g4.course_ID = 'COSC224'
+ORDER BY s.student_ID;
+
+010-020-030	Ron Low         BSC
+110-001-002	Barry Clark     BSC 
+120-123-321	Greg Norman     CIS 
+160-963-963	Ron Low         CIS 
+-----------------------------------------------------------------------------------------
+=========================================================================================
+-----------------------------------------------------------------------------------------
+=========================================================================================
+-- COSC 304 Lab 4 Solution (2020)
+
+-- Question 1
+SELECT Distinct d.ID, d.name, d.phone
+FROM L4_Dentists d, L4_Appointments a, L4_Patients p
+WHERE a.den_ID = d.ID AND
+      a.pat_ID = p.ID AND
+      (p.address LIKE '%Aster Street' OR p.address LIKE '%Birch Road') 
+ORDER BY d.ID;
+
+-- Question 2
+SELECT SUM(price)
+FROM L4_Appointments a, L4_App_Pros ap, L4_Procedures p, L4_Dentists d
+WHERE a.den_ID  = d.ID AND
+      ap.pro_ID = p.ID AND
+      ap.app_ID = a.ID AND
+      RoomNo = 'L206'  AND
+      d.name = 'Maureen Payne';
+
+-- Question 3
+SELECT d.ID, d.name, SUM(price) L206_Revenue
+FROM L4_Appointments a, L4_App_Pros ap, L4_Procedures p, L4_Dentists d
+WHERE a.den_ID  = d.ID AND
+      ap.pro_ID = p.ID AND
+      ap.app_ID = a.ID AND
+      RoomNo = 'L206'
+GROUP BY d.ID, d.name
+HAVING COUNT(DISTINCT A.ID) > 1
+ORDER BY d.ID;
+
+-- Question 4
+SELECT p.ID, P.description, COUNT(ins_ID) 
+FROM L4_Procedures p, L4_Ins_Pros ip
+WHERE p.ID = ip.pro_ID (+) AND
+      coverage (+) >= 0.75
+GROUP BY p.ID, P.description
+ORDER BY p.ID;
+
+-- Question 5
+SELECT p.ID, p.fname || ' ' || p.lname
+FROM L4_PATIENTS p
+MINUS
+SELECT p.ID, p.fname || ' ' || p.lname
+FROM L4_INSURANCE_COS ic, L4_PATIENTS p
+WHERE p.ins_ID = ic.ID  AND ic.Zone = 'N'
+ORDER BY ID;
+
+
+-- Question 6
+SELECT a.ID, a.app_date, pa.fname || ' ' || pa.lname Patient, d.name, p.description
+FROM L4_Appointments a, L4_Procedures p, L4_Patients pa, L4_Dentists d, L4_App_Pros ap
+WHERE a.den_ID  = d.ID  AND
+      a.pat_ID  = pa.ID AND
+      ap.pro_ID = p.ID  AND
+      ap.app_ID = a.ID  AND
+      a.app_date > SYSDATE AND
+      (d.ID, p.ID) NOT IN (SELECT den_ID, pro_ID FROM L4_Pro_Dens)
+ORDER BY a.app_date, p.description;
+
+
+-- Question 7
+-- Correct Answer
+SELECT BC_Patients.ID, BC_Patients.fname, BC_Patients.lname, COUNT(MoAndMikeApps.ID) Appointments
+FROM (SELECT pa.ID, pa.fname, pa.lname
+      FROM L4_Patients pa, L4_Insurance_Cos i
+      WHERE pa.ins_ID = i.ID AND i.company_name = 'Blue Cross') BC_Patients,
+     (SELECT den_ID, pat_ID, a.ID
+      FROM L4_Dentists d, L4_Appointments a
+      WHERE a.den_ID = d.ID  AND
+            d.name IN ('Maurice Larr','Michael Avitee')) MoAndMikeApps
+WHERE BC_Patients.ID = MoAndMikeApps.pat_ID (+)
+GROUP BY BC_Patients.ID, BC_Patients.fname, BC_Patients.lname
+ORDER BY BC_Patients.ID;
+
+-----------------------------------------------------------------------------------------
+=========================================================================================
+-----------------------------------------------------------------------------------------
+=========================================================================================
+
+-- COSC 304 Lab 5 Solution (2020)
+
+-- 1. 
+SELECT stu_name STUDENT_NAME, 'DF_' || UPPER(SUBSTR(stu_name,1,1) ||
+         SUBSTR(stu_name,INSTR(stu_name,' ')+1,4)) USERNAME
+FROM students
+ORDER BY stu_name;
+
+-- 2.
+SELECT p.fname || ' ' || p.lname Patient_name,
+       DECODE(NVL(p.ins_ID,-1), -1, 'No Insurance', i.company_name) Insurance
+FROM l4_Patients p, l4_Insurance_Cos i
+WHERE p.ins_ID = i.ID (+)
+ORDER BY p.lname;
+
+-- 3. 
+SELECT p.fname || ' ' || p.lname Patient_name,
+       TO_CHAR(app_date, 'MON DD, YYYY') APPT_DATE,
+       TO_CHAR(app_date, 'HH:MI AM') APPT_TIME,
+       DECODE(ROOMNo,'L201','Needs to move','L203','Needs to move',' ') Notes
+FROM L4_Appointments a, L4_Patients p
+WHERE a.pat_ID = p.ID AND
+      TO_CHAR(app_date, 'MM') = '11' AND
+      TO_CHAR(app_date, 'DY') = 'FRI'
+ORDER BY a.app_date;
+
+-- 4. 
+SELECT d.name,
+       SUM(DECODE(RoomNo,'L201',1,0)) L201,
+       SUM(DECODE(RoomNo,'L202',1,0)) L202,
+       SUM(DECODE(RoomNo,'L203',1,0)) L203
+FROM l4_dentists d, l4_appointments a, l4_app_pros ap
+WHERE d.ID = a.den_ID (+) AND
+      a.ID = ap.app_ID (+)
+GROUP BY d.name
+ORDER BY d.name;
+
+-- 5.
+SELECT d.name,
+       SUM(DECODE(RoomNo,'L201',1,0)) L201,
+       SUM(DECODE(RoomNo,'L202',1,0)) L202,
+       SUM(DECODE(RoomNo,'L203',1,0)) L203,
+       SUM(DECODE(RoomNo,'L201',1,DECODE(RoomNo,'L202',1,DECODE(RoomNo,'L203',1,0)))) Total
+FROM l4_dentists d, l4_appointments a, l4_app_pros ap
+WHERE d.ID = a.den_ID (+) AND
+      a.ID = ap.app_ID (+)
+GROUP BY d.name
+ORDER BY d.name;
+-----------------------------------------------------------------------------------------
+=========================================================================================
+-----------------------------------------------------------------------------------------
+=========================================================================================
+-- COSC 304 Lab 6 Solution (2020)
+
+CREATE TABLE PUpFitness ...  PK is Routine_ID,Exercise
+                             FK1 - Routine_ID references Routines(Routine_ID)
+                             FK2 - Exercise references Exercises(Exercise)
+
+CREATE TABLE Routines ...    PK is Routine_ID
+                             FK1 - Mem_ID references Members(Mem_ID)
+                             FK2 - trainer references Trainers(trainer)
+                              
+CREATE TABLE Members ...     PK is Mem_ID
+
+CREATE TABLE Trainers ...    PK is Trainer
+
+CREATE TABLE Exercises ...   PK is Exercise
+
+CREATE TABLE L6_PUpFitness(Routine_ID NUMBER, Exercise VARCHAR2(20), Duration NUMBER);
+CREATE TABLE L6_Routines(Routine_ID NUMBER, Rout_Date DATE, Mem_ID NUMBER, Trainer VARCHAR2(10), NSessions NUMBER);
+CREATE TABLE L6_Members(Mem_ID NUMBER, Name VARCHAR2(18), phone VARCHAR2(10)); 
+CREATE TABLE L6_Trainers(Trainer VARCHAR2(10), rate NUMBER); 
+CREATE TABLE L6_Exercises(Exercise VARCHAR2(20), points NUMBER); 
+
+ALTER TABLE L6_PUpFitness ADD CONSTRAINT L6_PUP_PK PRIMARY KEY(Routine_ID,Exercise);
+ALTER TABLE L6_Routines ADD CONSTRAINT L6_Routines_PK PRIMARY KEY(Routine_ID);
+ALTER TABLE L6_Members ADD CONSTRAINT L6_Members_PK PRIMARY KEY(Mem_ID);
+ALTER TABLE L6_Trainers ADD CONSTRAINT L6_Trainers_PK PRIMARY KEYTrainer);
+ALTER TABLE L6_Exercises ADD CONSTRAINT L6_Exercises_PK PRIMARY KEY(Exercise);
+
+ALTER TABLE L6_PUpFitness ADD CONSTRAINT L6_PUP_FK_Rout FOREIGN KEY(Routine_ID) REFERENCES L6_Routines(Routine_ID);
+ALTER TABLE L6_PUpFitness ADD CONSTRAINT L6_PUP_FK_Exer FOREIGN KEY(Exercise) REFERENCES L6_Exercises(Exercise);
+ALTER TABLE L6_Routines ADD CONSTRAINT L6_Routines_FK_Memb FOREIGN KEY(Mem_ID) REFERENCES L6_Members(Mem_ID);
+ALTER TABLE L6_Routines ADD CONSTRAINT L6_Routines_FK_Trai FOREIGN KEY(Trainer) REFERENCES L6_Members(Trainer);
+
+INSERT INTO L6_Exercises SELECT DISTINCT Exercise, points FROM Labdata.pup_fitness;
+INSERT INTO L6_Members SELECT DISTINCT Mem_ID, name, '' || phone FROM Labdata.pup_fitness;
+INSERT INTO L6_Trainers SELECT DISTINCT Trainer, rate FROM Labdata.pup_fitness;
+INSERT INTO L6_Routines SELECT DISTINCT Routine_ID, Rout_Date, Mem_ID, Trainer, NSessions  FROM Labdata.pup_fitness;
+INSERT INTO L6_Exercises SELECT DISTINCT Routine_ID, Exercise, duration FROM Labdata.pup_fitness;
+
+
+CREATE OR REPLACE VIEW L6_Original AS 
+SELECT p.routine_ID, r.rout_date, r.mem_ID, m.name, m.phone, t.trainer, t.rate, r.nSessions, e.exercise, e.points, p.duration
+FROM PUpFitness p, Routines r, Members m, Trainers t, Exercises e
+WHERE p.routine_ID = r.routine_ID AND
+      r.mem_ID     = m.mem_ID     AND
+      r.trainer    = t.trainer    AND
+      p.exercise   = e.exercise
+ORDER BY p.routine_ID, p.exercise;
+
+
+CREATE OR REPLACE VIEW WorkoutSummaries AS
+SELECT p.routine_ID, r.rout_date, m.name, t.trainer,
+      SUM(p.duration) TOTAL_DURATION,
+      SUM(e.points*p.duration) TOTAL_POINTS,
+      TO_CHAR(nSessions*t.rate, '$999.00') TOTAL_COST
+FROM PUpFitness p, Routines r, Members m, Trainers t, Exercises e
+WHERE p.routine_ID = r.routine_ID AND
+      r.mem_ID     = m.mem_ID     AND
+      r.trainer    = t.trainer    AND
+      p.exercise   = e.exercise
+GROUP BY p.routine_ID, r.rout_date, m.name, t.trainer, nSessions*t.rate --, r.nSessions*t.rate
+ORDER BY p.routine_ID;
+-----------------------------------------------------------------------------------------
+=========================================================================================
+-----------------------------------------------------------------------------------------
+=========================================================================================
+COSC 304 Lab Assignment 7 - Solution (2020)
+-- ////////////////////////////////////////
+-- Graded Exercises
+
+--// Exercise 4
+CREATE OR REPLACE TRIGGER lab7_grades_trg
+BEFORE INSERT OR UPDATE ON lab7_grades
+FOR EACH ROW
+BEGIN
+  :new.mark := (:new.t1 + :new.t2 + :new.t3)/3;
+END;
+
+--// Exercise 5
+CREATE OR REPLACE TRIGGER lab7_RES_TRG
+BEFORE INSERT ON lab7_reservations
+FOR EACH ROW
+DECLARE
+  seatsLeft number := -1;
+  flightCount number;
+  INVALID_FLIGHT Exception;
+  NO_SEATS_LEFT Exception;
+BEGIN
+  SELECT COUNT(*) INTO flightCount FROM lab7_flights
+  where flight_id = :new.flight_id;
+  
+  IF(flightCount = 0) THEN
+     RAISE INVALID_FLIGHT;
+  ELSE  
+    SELECT seats INTO seatsLeft FROM lab7_Flights
+    WHERE lab7_Flights.FLIGHT_ID = :new.flight_ID;
+    IF(seatsLeft = 0) THEN
+      RAISE NO_SEATS_LEFT;
+    ELSE
+      UPDATE lab7_flights SET seats = (seatsLeft-1)
+      WHERE flight_ID = :new.flight_id;
+    END IF;
+  END IF;
+EXCEPTION
+  WHEN INVALID_FLIGHT THEN
+    RAISE_APPLICATION_ERROR(-20002, 'Invalid Flight ID.');
+  WHEN NO_SEATS_LEFT THEN
+    RAISE_APPLICATION_ERROR(-20003, 'Error: Flight '||:new.flight_ID||' is Full.');
+END;
+-----------------------------------------------------------------------------------------
+=========================================================================================
+-----------------------------------------------------------------------------------------
+=========================================================================================
+
+-----------------------------------------------------------------------------------------
+=========================================================================================
+-----------------------------------------------------------------------------------------
+=========================================================================================
